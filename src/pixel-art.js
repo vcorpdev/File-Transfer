@@ -13,7 +13,6 @@ const rect = (svg, x, y, w, h, fill, opacity = 1) => {
 
 const ICONS = {
   file: ["#####...", "#...##..", "#...#.#.", "#...####", "#......#", "#......#", "#......#", "#......#", "#......#", "########"],
-  solid: ["#####...", "######..", "#######.", "########", "########", "########", "########", "########", "########", "########"],
   lock: ["..###..", ".#...#.", ".#...#.", "#######", "###.###", "###.###", "#######"],
   news: ["#########", "#.......#", "#.###.#.#", "#.###.#.#", "#.......#", "#.#####.#", "#########"],
   scale: ["....#....", ".#######.", ".#..#..#.", "#.#.#.#.#", "###.#.###", "....#....", "..#####.."],
@@ -54,6 +53,38 @@ const computer = (svg) => {
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => scramble(.5), 90);
 };
 
+// The file of step 3: whole at the top, it crumbles lower down. The lower a pixel is, the more likely
+// it breaks away, the further it falls and the dimmer it gets
+const FILE = [
+  "GGGGGGGGG...", "GWWWWWWWGG..", "GWDDDDDWGWG.", "GWWWWWWWGWWG", "GWDDDDDWGGGG",
+  "GWWWWWWWWWWG", "GWDDDDDDDDWG", "GWWWWWWWWWWG", "GWDDDDDDDDWG", "GWWWWWWWWWWG",
+  "GWDDDDDDDDWG", "GWWWWWWWWWWG", "GWDDDDDDDDWG", "GWWWWWWWWWWG", "GGGGGGGGGGGG",
+];
+const FILE_COLORS = { W: "#fff", G: "#c0c0c0", D: "#808080" };
+
+// Drawn on its own layer: 12 units a pixel, centred on the 600 x 360 tiles
+const dust = (svg) => {
+  const layer = document.createElementNS(NS, "g");
+  layer.setAttribute("transform", "translate(228 36) scale(12)");
+  svg.append(layer);
+  const height = 24, cut = 7, r = rnd(7), taken = new Set();
+  FILE.forEach((row, j) => [...row].forEach((c, i) => {
+    if (c === ".") return;
+    const depth = (j - cut) / (FILE.length - 1 - cut);   // 0 at the cut, 1 at the bottom edge
+    let x = i, y = j;
+    if (depth > 0 && r() < .3 + depth * .7) {
+      if (r() < .35 + depth * .25) return;                 // gone, too fine to see
+      const fall = 1 + Math.round(depth * 5 + r() * 4);
+      y += fall;
+      x += Math.round((r() - .5) * 2 * depth);
+      c = fall > 5 ? "D" : fall > 2 ? "G" : c === "D" ? "G" : c;
+    }
+    if (y >= height || taken.has(`${x},${y}`)) return;
+    taken.add(`${x},${y}`);
+    rect(layer, x, y, 1, 1, FILE_COLORS[c]);
+  }));
+};
+
 // A field of tiles: each tile picks a shade, a few are lighter, like sunlight on a wall
 const tiles = (svg, cols, rows, size, palette, seed, light = .12) => {
   const r = rnd(seed);
@@ -77,16 +108,10 @@ export function drawPixelArt() {
   // Step 2: the computer, its screen scrambled
   computer(document.getElementById("pc"));
 
-  // Step 3: the file breaks into pixels that drift away
+  // Step 3: the file crumbles and falls apart, on red-orange tiles
   const art3 = document.getElementById("art3");
   tiles(art3, 20, 12, 30, ["#e63a00", "#ff4400", "#ff5314", "#f03f00"], 21, .08);
-  const r = rnd(9);
-  ICONS.solid.forEach((row, j) => [...row].forEach((c, i) => {
-    if (c !== "#") return;
-    const d = i < 3 ? 0 : (i - 2) / 4 + r() * .6;
-    const dx = d * (50 + r() * 150), dy = (r() - .5) * d * 90;
-    rect(art3, 150 + i * 14 + dx, 50 + j * 14 + dy, 14, 14, "#fff", Math.max(.15, 1 - d * .55));
-  }));
+  dust(art3);
 
   // Quote background and pixel icons
   tiles(document.getElementById("art4"), 12, 10, 40, ["#ff4400", "#ff4c0b", "#ff5516"], 3, .1);
