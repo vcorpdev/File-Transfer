@@ -9,6 +9,7 @@
   --paper: #fff;
   --fog: #f4f4f4;
   --burn: #ff4400;
+  --link: #0b57d0;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
   --frame: 1240px;
   --pad: clamp(20px, 4vw, 48px);
@@ -44,7 +45,7 @@ svg.px { display: block; width: 100%; height: 100%; shape-rendering: crispEdges;
 .btn.dark:hover { background: #222; }
 .btn.soft { background: var(--fog); color: var(--ink); }
 .btn.soft:hover { background: #e9e9e9; }
-.chev { width: 8px; height: 10px; }
+.arrow { width: 12px; height: 12px; }
 
 /* ---------- Hero ---------- */
 .hero-head { text-align: center; padding: clamp(64px, 9vw, 120px) var(--pad) clamp(40px, 5vw, 64px); }
@@ -91,6 +92,7 @@ label.drop-view { cursor: pointer; }
 .fact:last-child { border-right: 0; }
 .fact b { display: block; font-weight: 500; font-size: 20px; letter-spacing: -.02em; }
 .fact span { font-size: 14px; color: var(--muted); }
+.fact a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 
 /* ---------- Big statement ---------- */
 .statement { padding: clamp(80px, 10vw, 136px) var(--pad); text-align: center; }
