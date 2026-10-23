@@ -3,8 +3,8 @@
 import { sendFile, receiveFile, isTooLarge, TransferError } from "./transfer.js";
 import { zipStream } from "./zip.js";
 
-// The key never reaches the server: what follows the # stays in the browser
-const KEY_FORMAT = /^[A-Za-z0-9_-]{43}$/;
+// The link ends with #<file ID>.<key>. What follows the # stays in the browser: the key never reaches the server
+const LINK_FORMAT = /^([0-9a-f]{64})\.([A-Za-z0-9_-]{43})$/;
 
 const $ = (selector) => document.querySelector(selector);
 const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -92,10 +92,10 @@ export function mountDrop() {
     sending.reset();
     setState("busy");
     try {
-      const key = list.length === 1
+      const { idFile, key } = list.length === 1
         ? await sendFile(list[0].stream(), { name: list[0].name, type: list[0].type }, onSent)
         : await sendFile(zipStream(list), { name: "vcorp-files.zip", type: "application/zip" }, onSent);
-      $("#link-output").value = `${location.origin}${location.pathname}#${key}`;
+      $("#link-output").value = `${location.origin}${location.pathname}#${idFile}.${key}`;
       await sending.reached(100);
       setState("ready");
     } catch (error) {
@@ -131,9 +131,10 @@ export function mountDrop() {
 
   // ---------- Receiving ----------
   // Another link pasted in the same tab: only the # changes, the page does not reload by itself
-  addEventListener("hashchange", () => { if (KEY_FORMAT.test(location.hash.slice(1))) location.reload(); });
-  const key = location.hash.slice(1);
-  if (!KEY_FORMAT.test(key)) return;
+  addEventListener("hashchange", () => { if (LINK_FORMAT.test(location.hash.slice(1))) location.reload(); });
+  const link = location.hash.slice(1).match(LINK_FORMAT);
+  if (!link) return;
+  const [, idFile, key] = link;
 
   const title = $("#hero-title"), lead = $("#hero-lead");
   const home = { title: title.innerHTML, lead: lead.textContent };
@@ -156,7 +157,7 @@ export function mountDrop() {
     // Without a size from the server there is no percentage, only the words
     const onProgress = (ratio) => (ratio === null ? showStatus(receiveStatus, "Downloading and decrypting…") : receiving.set(ratio * 100));
     try {
-      const received = await receiveFile(key, onProgress);
+      const received = await receiveFile(idFile, key, onProgress);
       if (!received) {
         showStatus(receiveStatus, "Download cancelled. The file is still available.");
         button.disabled = false;

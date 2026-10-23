@@ -7,14 +7,14 @@ The website of [vcorp.app](https://vcorp.app). Send a file that only your recipi
 ### Sending a file
 
 1. **A key is generated.** Your browser creates a random 256-bit key (`crypto.getRandomValues`). It never leaves your device, except inside the link you share.
-2. **A file ID is made from the key.** The browser hashes the key with SHA-256. This hash is the ID the server will store the file under. The key cannot be recovered from it.
+2. **A file ID is generated.** The browser also creates a random 256-bit file ID, separately from the key: one tells nothing about the other. The server will store the file under this ID.
 3. **The file is encrypted.** The browser encrypts the file name and type, then the file itself, with AES-256-GCM. Several files are first put into one zip, built in the browser.
 4. **The encrypted file is sent.** It goes to the server in parts, under its ID. The server only receives unreadable bytes: no name, no content, no key.
-5. **The link is built.** It holds the key after the `#`: `https://vcorp.app/#<key>`. Browsers never send this part of a URL to a server.
+5. **The link is built.** It holds the file ID and the key after the `#`: `https://vcorp.app/#<file ID>.<key>`. Browsers never send this part of a URL to a server.
 
 ### Receiving a file
 
-1. **The recipient opens the link.** Their browser reads the key after the `#`, and computes the file ID from it, the same way.
+1. **The recipient opens the link.** Their browser reads the file ID and the key after the `#`.
 2. **The encrypted file is downloaded** with this ID.
 3. **The file is decrypted** in their browser, and saved under its original name.
 4. **The file is destroyed.** The server deletes it as soon as it has been downloaded once. A file nobody opens is deleted after 48 hours.

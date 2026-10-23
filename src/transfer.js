@@ -26,12 +26,9 @@ function params(index, isLast) {
   return { name: "AES-GCM", iv, additionalData: new Uint8Array([isLast ? 1 : 0]) };
 }
 
-// The file ID on the server = SHA-256 of the key: the link only holds the key,
-// and the server, which only knows the ID, cannot get the key back
-async function fileIdFromKey(keyBytes) {
-  const hash = await crypto.subtle.digest("SHA-256", keyBytes);
-  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
+// The file ID on the server and the key are drawn apart: the ID tells nothing about the key.
+// The link holds both, the server only ever sees the ID
+const randomFileId = () => [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, "0")).join("");
 
 const toBase64Url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
@@ -73,11 +70,11 @@ async function upload(idFile, done, body = null, onSent = () => {}) {
   }
 }
 
-// Encrypts and sends the stream, returns the key to put in the link. onSent = bytes already sent to the server
+// Encrypts and sends the stream, returns the file ID and the key to put in the link. onSent = bytes already sent to the server
 export async function sendFile(stream, header, onSent) {
   const keyBytes = crypto.getRandomValues(new Uint8Array(32));
   const key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["encrypt"]);
-  const idFile = await fileIdFromKey(keyBytes);
+  const idFile = randomFileId();
 
   // Name and type are encrypted in the header, padded to 1024 bytes (the name length does not show)
   let { name, type } = header;
@@ -101,7 +98,7 @@ export async function sendFile(stream, header, onSent) {
   }
 
   await upload(idFile, true);
-  return toBase64Url(keyBytes);
+  return { idFile, key: toBase64Url(keyBytes) };
 }
 
 // Reads the stream in blocks of an exact size (the network delivers pieces of any size).
@@ -138,12 +135,12 @@ function blockReader(stream, onBytes = () => {}) {
 // Downloads (the server destroys the file once it has sent it whole), decrypts and saves it.
 // onProgress: share of the file received (0 to 1), or null if the server gave no size.
 // Returns { name, size }, or null if the download was cancelled
-export async function receiveFile(keyText, onProgress) {
+export async function receiveFile(idFile, keyText, onProgress) {
   const keyBytes = fromBase64Url(keyText);
   if (!keyBytes || keyBytes.length !== 32) throw new TransferError("This link is incomplete. Check that you copied it entirely.");
   const key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["decrypt"]);
 
-  const response = await fetch(`${API_URL}/download`, { headers: { idfile: await fileIdFromKey(keyBytes) } }).catch(() => {
+  const response = await fetch(`${API_URL}/download`, { headers: { idfile: idFile } }).catch(() => {
     throw new TransferError("Connection lost. Please try again.");
   });
   if (response.status === 404) throw new TransferError("This file no longer exists. It was already downloaded, or it expired after 48 hours.");
