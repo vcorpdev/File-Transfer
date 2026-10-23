@@ -79,11 +79,24 @@
       .foot { display: grid; grid-template-columns: 1fr; }
       .brand { display: flex; align-items: center; gap: 12px; padding: 40px var(--pad); font-weight: 500; font-size: 24px; letter-spacing: -.03em; }
       .brand img { display: block; width: 32px; height: 32px; }
+      .links { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+      .links > div { padding: 32px var(--pad); }
+      .links > div:nth-child(2) { border-left: 1px solid var(--line); }
+      .links > div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line); }
+      .links h4 { font-weight: 400; font-size: 15px; color: var(--muted); }
+      .links ul { list-style: none; margin-top: 16px; }
+      .links li { padding-block: 3px; }
+      .links a:hover { color: var(--muted); }
       .bottom { padding: 24px var(--pad) 40px; font-size: 14px; color: var(--muted); }
 
       @media (min-width: 900px) {
         .help { grid-template-columns: repeat(4, 1fr); }
         .help a + a { border-top: 0; border-left: 1px solid var(--line); }
+        .foot { grid-template-columns: 1fr 3fr; }
+        .brand { align-self: start; }
+        .links { grid-template-columns: repeat(3, 1fr); border-top: 0; border-left: 1px solid var(--line); }
+        .links > div { padding-block: 40px; }
+        .links > div:nth-child(3) { grid-column: auto; border-top: 0; border-left: 1px solid var(--line); }
       }
       /* Header on narrow screens: the three links need 484 px, or 417 px with tighter cells */
       @media (max-width: 500px) {
@@ -116,7 +129,7 @@
         <h1>Page not found.</h1>
         <p class="lead">This page doesn’t exist or has been moved. Try one of the links below, or head back home.</p>
         <a class="btn" href="/">Back to home
-          <svg width="8" height="10" viewBox="0 0 4 5" aria-hidden="true"><path fill="currentColor" d="M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM1 3h1v1H1zM0 4h1v1H0z" /></svg>
+          <svg width="12" height="12" viewBox="0 0 7 7" aria-hidden="true"><path fill="currentColor" d="M3 0h1v1H3zM4 1h1v1H4zM5 2h1v1H5zM0 3h7v1H0zM5 4h1v1H5zM4 5h1v1H4zM3 6h1v1H3z" /></svg>
         </a>
       </section>
 
@@ -131,8 +144,13 @@
     <footer>
       <div class="frame row foot">
         <a class="brand" href="/" aria-label="Vcorp, home"><img src="/assets/logo/vcorp-logo.png" alt="" width="32" height="32" /><span>Vcorp</span></a>
+        <div class="links">
+          <div><h4>Products</h4><ul><li><a href="/">File Transfer</a></li><li><a href="/metadata-remover/">Metadata Remover</a></li></ul></div>
+          <div><h4>Developers</h4><ul><li><a href="/docs/">API documentation</a></li><li><a href="https://github.com/gotlandrolamg-dev/File-Transfer" target="_blank" rel="noopener noreferrer">Source code</a></li></ul></div>
+          <div><h4>Vcorp</h4><ul><li><a href="mailto:contact@vcorp.app">contact@vcorp.app</a></li></ul></div>
+        </div>
       </div>
-      <div class="frame row bottom"><span>© 2026 Vcorp</span></div>
+      <div class="frame row bottom"><span>© 2026 Vcorp. All rights reserved.</span></div>
     </footer>
   </body>
 </html>
