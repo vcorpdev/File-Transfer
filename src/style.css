@@ -106,11 +106,9 @@ h2 { font-weight: 500; font-size: clamp(32px, 4.2vw, 56px); line-height: 1.04; l
 .how-row { display: grid; grid-template-columns: 1fr; gap: 28px; padding: 40px var(--pad); align-items: center; }
 .how-row h3 { font-weight: 500; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.12; letter-spacing: -.03em; }
 .how-row p { margin-top: 12px; color: var(--ink-2); max-width: 26em; }
-.how-row .tag { margin-top: 20px; display: inline-flex; padding: 6px 10px; border-radius: 6px; background: var(--fog); font: 13px var(--mono); color: var(--ink-2); }
-.how-row .tag.gone { text-decoration: line-through; text-decoration-color: var(--burn); color: var(--muted); }
 .art { aspect-ratio: 5 / 3; border-radius: 4px; overflow: hidden; }
 /* The computer and its radio: 16x16 and 12x9 bitmaps, on a black panel */
-.art.computer { display: grid; place-items: center; background: #000; }
+.art.computer { display: grid; place-items: end center; background: #000; }
 .art.computer svg { display: block; height: 72%; width: auto; shape-rendering: crispEdges; }
 
 /* ---------- Ledger ---------- */
