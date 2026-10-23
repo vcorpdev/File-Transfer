@@ -4,20 +4,12 @@ The website of [vcorp.app](https://vcorp.app). Send a file that only your recipi
 
 ## How it works
 
-### Sending a file
+Your browser generates a 256-bit key, which it then uses to encrypt your file.
+It also generates a random 256-bit string, which will be used as the identifier of your file.
 
-1. **Key generated on your device.** Your browser generates a random 256-bit encryption key. It never leaves your device, except inside the link you share.
-2. **ID generated on your device.** Your browser also generates a random identifier for the file, separately from the key. The ID tells nothing about the key.
-3. **Encrypted on your device.** The file, its name and its metadata are encrypted with AES-256-GCM, in your browser. Several files are first put together in one zip.
-4. **Stored as noise.** Only then is the file sent to our server, under its ID. Our server receives an unreadable block of data, stored under an equally unreadable identifier, always with the same `.bin` extension. It never gets the key, the name or the content.
-5. **The link.** The link holds the ID and the key, after the `#` symbol: `https://vcorp.app/#<file ID>.<key>`. When the link is opened, the part after the `#` is not sent with the request for the page: it stays in the browser.
+If you drop several files, that is not a problem: they will be grouped into a single zip, once again in the browser. Once everything is encrypted, the file is sent to our servers. So they have absolutely no information: they receive an unreadable block of data, which they have to store under an equally unreadable identifier.
 
-### Receiving a file
-
-1. **Opening the link.** The recipient's browser loads the page, then reads the ID and the key in the link, after the `#`.
-2. **Only the ID is sent.** The browser asks our server for the file, with its ID. The key is never sent.
-3. **Decrypted on their device.** The file is decrypted in their browser with the key, and saved under its original name.
-4. **Gone for good.** The file on our server is destroyed as soon as it has been downloaded once. A file nobody opens is destroyed after 48 hours.
+Once the server has confirmed it received the file, your browser generates a link containing the identifier of the file and the decryption key. This precious information is not sent in the request, because it sits after the `#` symbol. It is the browser that builds a request from the identifier of the file alone, to retrieve it. The browser then decrypts the file with the key, and the file is immediately destroyed once retrieved.
 
 ### Encrypted file format
 
