@@ -121,7 +121,7 @@
             <div class="how-row" data-step="2">
               <div>
                 <h3>Opened once. Then gone for good.</h3>
-                <p>The URL used to retrieve the file contains the ID of the file to retrieve and the decryption key. The key sits after the # symbol in the URL, so it is never sent in the request. It will decrypt the file in your browser, and the file on the server will be immediately destroyed.</p>
+                <p>The URL used to retrieve the file contains the ID of the file to retrieve and the decryption key. Both sit after the # symbol in the URL, so neither is sent when the page loads. Your browser then builds a request with the ID alone to retrieve the file: the key is never sent. It will decrypt the file in your browser, and the file on the server will be immediately destroyed.</p>
               </div>
               <div class="art"><svg class="px" id="art3" aria-hidden="true" preserveAspectRatio="xMidYMid slice"></svg></div>
             </div>
